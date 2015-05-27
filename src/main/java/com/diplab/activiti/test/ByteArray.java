@@ -12,6 +12,7 @@ import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.persistence.entity.ByteArrayRef;
+import org.springframework.util.SerializationUtils;
 
 import com.diplab.activiti.engine.impl.cfg.DipProcessEngineConfiguration;
 
@@ -31,22 +32,14 @@ public class ByteArray {
 					@Override
 					public Void execute(CommandContext commandContext) {
 						ByteArrayRef byteArrayRef = new ByteArrayRef();
-						try {
-							byteArrayRef.setValue("name",
-									serialize(new Temperature("HI")));
-							System.out.println(byteArrayRef.getId());
+						byteArrayRef.setValue("name", SerializationUtils
+								.serialize(new Temperature("HI")));
+						System.out.println(byteArrayRef.getId());
 
-							ByteArrayRef byteArrayRef2 = new ByteArrayRef(
-									byteArrayRef.getId());
-							System.out.println(deserialize(byteArrayRef2
-									.getBytes()));
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (ClassNotFoundException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+						ByteArrayRef byteArrayRef2 = new ByteArrayRef(
+								byteArrayRef.getId());
+						System.out.println(SerializationUtils
+								.deserialize(byteArrayRef2.getBytes()));
 
 						return null;
 					}
@@ -55,6 +48,10 @@ public class ByteArray {
 	}
 
 	static class Temperature implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3430156490697045617L;
 		String name;
 
 		@Override
@@ -68,17 +65,4 @@ public class ByteArray {
 		}
 	}
 
-	public static byte[] serialize(Object obj) throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ObjectOutputStream os = new ObjectOutputStream(out);
-		os.writeObject(obj);
-		return out.toByteArray();
-	}
-
-	public static Object deserialize(byte[] data) throws IOException,
-			ClassNotFoundException {
-		ByteArrayInputStream in = new ByteArrayInputStream(data);
-		ObjectInputStream is = new ObjectInputStream(in);
-		return is.readObject();
-	}
 }
