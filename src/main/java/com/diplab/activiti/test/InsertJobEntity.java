@@ -1,17 +1,18 @@
 package com.diplab.activiti.test;
 
-import java.io.Serializable;
-
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
-import org.activiti.engine.impl.persistence.entity.ByteArrayRef;
-import org.springframework.util.SerializationUtils;
 
+import com.diplab.activiti.Constant.TemperatureMode;
 import com.diplab.activiti.engine.impl.cfg.DipProcessEngineConfiguration;
+import com.diplab.activiti.engine.impl.jobexecutor.TemperatureDeclarationImpl;
+import com.diplab.activiti.engine.impl.jobexecutor.TemperatureStartEventJobHandler;
+import com.diplab.activiti.engine.impl.persistence.entity.TemperatureEntity;
 
-public class ByteArray {
+public class InsertJobEntity {
 
 	public static void main(String[] args) throws InterruptedException {
 		ProcessEngineConfigurationImpl config = new DipProcessEngineConfiguration();
@@ -26,38 +27,15 @@ public class ByteArray {
 
 					@Override
 					public Void execute(CommandContext commandContext) {
-						ByteArrayRef byteArrayRef = new ByteArrayRef();
-						byteArrayRef.setValue("name", SerializationUtils
-								.serialize(new Temperature("HI")));
-						System.out.println(byteArrayRef.getId());
-
-						ByteArrayRef byteArrayRef2 = new ByteArrayRef(
-								byteArrayRef.getId());
-						System.out.println(SerializationUtils
-								.deserialize(byteArrayRef2.getBytes()));
-
+						TemperatureDeclarationImpl declaration = new TemperatureDeclarationImpl(
+								23, TemperatureMode.EQUAL,
+								TemperatureStartEventJobHandler.TYPE, "2");
+						Context.getCommandContext().getDbSqlSession()
+								.insert(new TemperatureEntity(declaration));
 						return null;
 					}
 				});
 
-	}
-
-	static class Temperature implements Serializable {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 3430156490697045617L;
-		String name;
-
-		@Override
-		public String toString() {
-			return "Temperature [name=" + name + "]";
-		}
-
-		public Temperature(String name) {
-			super();
-			this.name = name;
-		}
 	}
 
 }
