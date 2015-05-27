@@ -18,7 +18,7 @@ public class InsertJobEntity {
 		ProcessEngineConfigurationImpl config = new DipProcessEngineConfiguration();
 		config.setJdbcUrl("jdbc:h2:tcp://localhost/Activiti");
 		// config.setDatabaseSchemaUpdate("drop-create");
-		// config.setJobExecutorActivate(true);
+		config.setJobExecutorActivate(true);
 
 		final ProcessEngine processEngine = config.buildProcessEngine();
 

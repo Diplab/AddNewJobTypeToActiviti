@@ -66,4 +66,8 @@ public class TemperatureEntity extends JobEntity {
 		ref.setValue("self", SerializationUtils.serialize(this));
 		setSelf(ref.getId());
 	}
+
+	public TemperatureEntity() {
+
+	}
 }

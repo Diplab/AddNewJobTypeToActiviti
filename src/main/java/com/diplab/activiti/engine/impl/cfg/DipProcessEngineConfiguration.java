@@ -13,6 +13,7 @@ import org.activiti.engine.impl.bpmn.parser.factory.DefaultActivityBehaviorFacto
 import org.activiti.engine.impl.bpmn.parser.factory.DefaultListenerFactory;
 import org.activiti.engine.impl.cfg.DefaultBpmnParseFactory;
 import org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration;
+import org.activiti.engine.impl.jobexecutor.JobHandler;
 import org.activiti.engine.impl.persistence.deploy.Deployer;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.parse.BpmnParseHandler;
@@ -21,6 +22,7 @@ import com.diplab.activiti.bpmn.converter.DiplabStartEventXMLConverter;
 import com.diplab.activiti.engine.impl.bpmn.deployer.DiplabBpmnDeployer;
 import com.diplab.activiti.engine.impl.bpmn.parser.handler.DiplabStartEventParserHandler;
 import com.diplab.activiti.engine.impl.bpmn.parser.handler.TemperatureEventDefinitionParserHandler;
+import com.diplab.activiti.engine.impl.jobexecutor.TemperatureStartEventJobHandler;
 
 public class DipProcessEngineConfiguration extends
 		StandaloneProcessEngineConfiguration {
@@ -35,6 +37,8 @@ public class DipProcessEngineConfiguration extends
 
 		this.setPostBpmnParseHandlers(Arrays
 				.<BpmnParseHandler> asList(new TemperatureEventDefinitionParserHandler()));
+		
+		this.setCustomJobHandlers(Arrays.<JobHandler> asList(new TemperatureStartEventJobHandler()));
 
 	}
 
