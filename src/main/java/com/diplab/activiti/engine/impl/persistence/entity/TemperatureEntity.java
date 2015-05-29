@@ -2,6 +2,7 @@ package com.diplab.activiti.engine.impl.persistence.entity;
 
 import java.util.Calendar;
 
+import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.persistence.entity.ByteArrayRef;
 import org.activiti.engine.impl.persistence.entity.JobEntity;
 import org.springframework.util.SerializationUtils;
@@ -11,6 +12,7 @@ import com.diplab.activiti.engine.impl.jobexecutor.TemperatureDeclarationImpl;
 
 public class TemperatureEntity extends JobEntity {
 
+//	private Logger logger = LoggerFactory.getLogger(TemperatureEntity.class);
 	/**
 	 * 
 	 */
@@ -54,14 +56,30 @@ public class TemperatureEntity extends JobEntity {
 	}
 
 	public TemperatureEntity(TemperatureDeclarationImpl declaration) {
+
 		jobHandlerType = declaration.getJobHandlerType();
 		condition = declaration.getCondition();
 		mode = declaration.getMode();
 		sensor_id = declaration.getId();
 		Calendar instance = Calendar.getInstance();
-		// instance.add(Calendar.YEAR, 3);
+		instance.add(Calendar.SECOND, 10);
 		duedate = instance.getTime();
 
+		ByteArrayRef ref = new ByteArrayRef();
+		ref.setValue("self", SerializationUtils.serialize(this));
+		setSelf(ref.getId());
+	}
+
+	public TemperatureEntity(TemperatureEntity entity) {
+		this.jobHandlerType = entity.jobHandlerType;
+		this.condition = entity.condition;
+		this.mode = entity.mode;
+		this.sensor_id = entity.sensor_id;
+		
+		Calendar instance = Calendar.getInstance();
+		instance.add(Calendar.SECOND, 10);
+		this.duedate = instance.getTime();
+		
 		ByteArrayRef ref = new ByteArrayRef();
 		ref.setValue("self", SerializationUtils.serialize(this));
 		setSelf(ref.getId());
@@ -70,4 +88,29 @@ public class TemperatureEntity extends JobEntity {
 	public TemperatureEntity() {
 
 	}
+
+	@Override
+	public void execute(CommandContext commandContext) {
+		// TODO Auto-generated method stub
+		super.execute(commandContext);
+		delete();
+		schedule(self);
+	}
+	
+	@Override
+	public void delete() {
+		super.delete();
+		ByteArrayRef ref = new ByteArrayRef(self);
+		ref.delete();
+	}
+
+	private void schedule(String self2) {
+		ByteArrayRef ref = new ByteArrayRef(self2);
+		TemperatureEntity entity = (TemperatureEntity) SerializationUtils
+				.deserialize(ref.getBytes());
+		entity = new TemperatureEntity(entity);
+		entity.insert();
+
+	}
+
 }

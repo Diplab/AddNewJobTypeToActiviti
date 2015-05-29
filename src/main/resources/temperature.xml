@@ -607,4 +607,10 @@
 		and REV_ = #{revision,
 		jdbcType=INTEGER}
 	</update>
+	
+	<delete id="deleteTemperature"
+		parameterType="com.diplab.activiti.engine.impl.persistence.entity.TemperatureEntity">
+		delete from ${prefix}ACT_RU_JOB where ID_ = #{id} and
+		REV_ = #{revision}
+	</delete>
 </mapper>
