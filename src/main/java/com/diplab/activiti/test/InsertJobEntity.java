@@ -30,8 +30,9 @@ public class InsertJobEntity {
 						TemperatureDeclarationImpl declaration = new TemperatureDeclarationImpl(
 								23, TemperatureMode.EQUAL,
 								TemperatureStartEventJobHandler.TYPE, "2");
-						Context.getCommandContext().getDbSqlSession()
-								.insert(new TemperatureEntity(declaration));
+						Context.getCommandContext()
+								.getDbSqlSession()
+								.insert(new TemperatureEntity(declaration, null));
 						return null;
 					}
 				});

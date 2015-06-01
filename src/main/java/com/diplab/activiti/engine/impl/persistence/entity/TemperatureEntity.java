@@ -12,7 +12,7 @@ import com.diplab.activiti.engine.impl.jobexecutor.TemperatureDeclarationImpl;
 
 public class TemperatureEntity extends JobEntity {
 
-//	private Logger logger = LoggerFactory.getLogger(TemperatureEntity.class);
+	// private Logger logger = LoggerFactory.getLogger(TemperatureEntity.class);
 	/**
 	 * 
 	 */
@@ -55,7 +55,18 @@ public class TemperatureEntity extends JobEntity {
 		this.sensor_id = sensor_id;
 	}
 
-	public TemperatureEntity(TemperatureDeclarationImpl declaration) {
+	@Override
+	public void insert() {
+		ByteArrayRef ref = new ByteArrayRef();
+		ref.setValue("self", SerializationUtils.serialize(this));
+		
+		setSelf(ref.getId());
+		
+		super.insert();
+	}
+
+	public TemperatureEntity(TemperatureDeclarationImpl declaration,
+			String processDefinitionId) {
 
 		jobHandlerType = declaration.getJobHandlerType();
 		condition = declaration.getCondition();
@@ -64,10 +75,8 @@ public class TemperatureEntity extends JobEntity {
 		Calendar instance = Calendar.getInstance();
 		instance.add(Calendar.SECOND, 10);
 		duedate = instance.getTime();
+		this.processDefinitionId = processDefinitionId;
 
-		ByteArrayRef ref = new ByteArrayRef();
-		ref.setValue("self", SerializationUtils.serialize(this));
-		setSelf(ref.getId());
 	}
 
 	public TemperatureEntity(TemperatureEntity entity) {
@@ -75,14 +84,11 @@ public class TemperatureEntity extends JobEntity {
 		this.condition = entity.condition;
 		this.mode = entity.mode;
 		this.sensor_id = entity.sensor_id;
-		
+		this.processDefinitionId = entity.processDefinitionId;
+
 		Calendar instance = Calendar.getInstance();
 		instance.add(Calendar.SECOND, 10);
 		this.duedate = instance.getTime();
-		
-		ByteArrayRef ref = new ByteArrayRef();
-		ref.setValue("self", SerializationUtils.serialize(this));
-		setSelf(ref.getId());
 	}
 
 	public TemperatureEntity() {
@@ -96,7 +102,7 @@ public class TemperatureEntity extends JobEntity {
 		delete();
 		schedule(self);
 	}
-	
+
 	@Override
 	public void delete() {
 		super.delete();

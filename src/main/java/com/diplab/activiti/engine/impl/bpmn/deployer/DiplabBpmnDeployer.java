@@ -299,8 +299,7 @@ public class DiplabBpmnDeployer extends BpmnDeployer {
 		if (tempDeclarations != null) {
 			for (TemperatureDeclarationImpl temperatureDeclarationImpl : tempDeclarations) {
 				TemperatureEntity temperatureEntity = new TemperatureEntity(
-						temperatureDeclarationImpl);
-				temperatureEntity.setProcessDefinitionId(processDefinition
+						temperatureDeclarationImpl,processDefinition
 						.getId());
 				temperatureEntity.insert();
 			}

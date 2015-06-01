@@ -1,11 +1,21 @@
 package com.diplab.activiti.engine.impl.jobexecutor;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.activiti.engine.ActivitiException;
+import org.activiti.engine.delegate.event.ActivitiEventType;
+import org.activiti.engine.delegate.event.impl.ActivitiEventBuilder;
+import org.activiti.engine.impl.cmd.StartProcessInstanceCmd;
+import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.jobexecutor.JobHandler;
+import org.activiti.engine.impl.persistence.deploy.DeploymentManager;
 import org.activiti.engine.impl.persistence.entity.ByteArrayRef;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.activiti.engine.impl.persistence.entity.JobEntity;
+import org.activiti.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SerializationUtils;
@@ -41,5 +51,29 @@ public class TemperatureStartEventJobHandler implements JobHandler {
 		Temperature temperature = receiver.getTemperature();
 		logger.info(String.format("get Temperature = %f from %s",
 				temperature.getTemperature(), entity.getSensor_id()));
+
+		DeploymentManager deploymentCache = Context
+				.getProcessEngineConfiguration().getDeploymentManager();
+
+		ProcessDefinition processDefinition = null;
+		processDefinition = deploymentCache
+				.findDeployedProcessDefinitionById(job.getProcessDefinitionId());
+
+		if (processDefinition == null) {
+			throw new ActivitiException(
+					"Could not find process definition needed for temperature start event");
+		}
+
+		if (!processDefinition.isSuspended()) {
+			if (commandContext.getEventDispatcher().isEnabled()) {
+				commandContext.getEventDispatcher().dispatchEvent(
+						ActivitiEventBuilder.createEntityEvent(
+								ActivitiEventType.TIMER_FIRED, job));
+			}
+
+			Map<String, Object> variables = new HashMap<String, Object>();
+			variables.put("temperature", Arrays.<Temperature>asList(receiver.getTemperature()));
+			new StartProcessInstanceCmd<Object>(null, processDefinition.getId(), null, variables ).execute(commandContext);
+		}
 	}
 }
